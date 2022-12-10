@@ -1,6 +1,6 @@
 use std::io::stderr;
 
-use tracing::{info, Level};
+use tracing::Level;
 use tracing_subscriber::fmt::format::FmtSpan;
 
 use crate::{BasicAlgebraicExpr, SimpleExpr};

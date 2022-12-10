@@ -5,7 +5,7 @@ use crate::rational_expressions::RationalExpr;
 use crate::{BasicAlgebraicExpr, ComputeResult, SimpleExpr, Undefined};
 use num::{BigInt, One, Signed, Zero};
 use smallvec::{smallvec, SmallVec};
-use tracing::{debug, info};
+use tracing::debug;
 
 pub trait Operation: Copy + Debug {
     // https://en.wikipedia.org/wiki/Absorbing_element
@@ -39,7 +39,6 @@ pub trait Operation: Copy + Debug {
         b: SimpleExpr,
     ) -> ComputeResult<Option<SmallVec<[SimpleExpr; 2]>>>;
 
-    #[tracing::instrument]
     fn simplify_pair(
         self,
         a: SimpleExpr,

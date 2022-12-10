@@ -33,22 +33,5 @@ impl From<i32> for SimpleExpr {
     }
 }
 
-pub mod ඞ {
-    /// ```compile_fail
-    /// use acas::create_expr;
-    ///
-    /// let x = create_expr!(bigint("hahaha"));
-    /// ```
-    pub const fn assert_digits(s: &str) {
-        let mut i = 0;
-        while i < s.len() {
-            if !s.as_bytes()[i].is_ascii_digit() {
-                panic!("please supply a number")
-            }
-            i += 1;
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests;
