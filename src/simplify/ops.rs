@@ -32,7 +32,7 @@ pub trait Operation: Copy + Debug {
     fn do_constant(self, x: Constant, y: Constant) -> Constant;
 
     /// The backbone of simplify_pair. If we can simplify by collecting like terms in addition or powers in multiplication, we do so.
-    /// if not, we return `Ok(Err((a, b)))`.
+    /// if not, we return `Ok(None)`.
     fn simplify_pair_collect(
         self,
         a: SimpleExpr,
@@ -100,7 +100,7 @@ pub trait Operation: Copy + Debug {
             .into_iter()
             .map(BasicAlgebraicExpr::simplify)
             .collect::<Result<_, _>>()?;
-        exprs.sort_unstable();
+        exprs.sort_unstable_by(|a, b| a.cmp(b).reverse());
         self.simplify(exprs)
     }
 
@@ -285,17 +285,15 @@ impl Operation for Sum {
         a: SimpleExpr,
         b: SimpleExpr,
     ) -> ComputeResult<Option<SmallVec<[SimpleExpr; 2]>>> {
-        let (rationala, a_sym) = a.split_product().expect("must not be constant");
-        let (rationalb, b_sym) = b.split_product().expect("must not be constant");
+        let Ok((rationala, a_sym)) = a.split_product() else { return Ok(None) };
+        let Ok((rationalb, b_sym)) = b.split_product() else { return Ok(None) };
 
         debug!(?rationala, ?rationalb, ?a_sym, ?b_sym);
 
         Ok(if a_sym == b_sym {
             let sum = (rationala + rationalb).simplify().into_algebraic_expr()?;
             debug!(?sum, ?a_sym);
-            Some(smallvec![SimpleExpr::Product(
-                Product.simplify_pair(sum, a_sym)?.into_vec()
-            )])
+            Some(smallvec![Product.simplify(vec![sum, a_sym])?])
         } else {
             None
         })

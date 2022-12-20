@@ -11,7 +11,6 @@
 use std::iter::Peekable;
 use std::str::Chars;
 
-use chumsky::error::Cheap;
 use num::BigInt;
 
 use crate::BasicAlgebraicExpr;
