@@ -293,7 +293,9 @@ impl Operation for Sum {
         Ok(if a_sym == b_sym {
             let sum = (rationala + rationalb).simplify().into_algebraic_expr()?;
             debug!(?sum, ?a_sym);
-            Some(smallvec![SimpleExpr::Product(Product.simplify_pair(sum, a_sym)?.into_vec())])
+            Some(smallvec![SimpleExpr::Product(
+                Product.simplify_pair(sum, a_sym)?.into_vec()
+            )])
         } else {
             None
         })
@@ -322,7 +324,10 @@ impl BasicAlgebraicExpr {
                     Ok(SimpleExpr::Pow(Box::new((base, exp))))
                 }
             }
-            _ => todo!(),
+            SimpleExpr::Product(exprs) => {
+                Ok(SimpleExpr::Product(exprs.into_iter().map(|x| Self::simplify_integer_power(x, exp)).collect::<ComputeResult<Vec<_>>>()?))
+            }
+            _ => Ok(SimpleExpr::Pow(Box::new((base, SimpleExpr::Const(exp.clone().into())))))
         }
     }
     fn simplify_power(base: SimpleExpr, exponent: SimpleExpr) -> ComputeResult {
@@ -352,7 +357,11 @@ impl BasicAlgebraicExpr {
             Pow(x) => Self::simplify_power((*x).0.simplify()?, (*x).1.simplify()?)?,
             Sum(x) => self::Sum.simplify_entry(x)?,
             Product(x) => self::Product.simplify_entry(x)?,
-            _ => todo!(),
+            Neg(x) => {
+                self::Product.simplify_entry(vec![BasicAlgebraicExpr::Const((-1).into()), *x])?
+            }
+            Factorial(_) => todo!(),
+            Function(..) => todo!(),
         })
     }
 }

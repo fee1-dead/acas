@@ -1,4 +1,4 @@
-#![feature(let_chains, if_let_guard)]
+#![feature(let_chains, if_let_guard, once_cell)]
 
 use constant::Constant;
 
@@ -8,6 +8,8 @@ use simplify::SimpleExpr;
 mod cmp;
 pub mod constant;
 mod helpers;
+pub mod parse;
+pub mod print;
 mod rational_expressions;
 pub mod simplify;
 
@@ -20,6 +22,7 @@ pub type ComputeResult<T = SimpleExpr> = Result<T, Undefined>;
 pub enum BasicAlgebraicExpr {
     Const(Constant),
     Symbol(String),
+    Neg(Box<BasicAlgebraicExpr>),
     Product(Vec<BasicAlgebraicExpr>),
     Sum(Vec<BasicAlgebraicExpr>),
     Pow(Box<(BasicAlgebraicExpr, BasicAlgebraicExpr)>),

@@ -30,7 +30,7 @@ impl PartialOrd for SimpleExpr {
 }
 
 macro_rules! common_ord {
-    ($a: ident, $b: ident) => {
+    ($a: ident, $b: ident, $($tt:tt)*) => {
         match ($a, $b) {
             (a, b) if a == b => Ordering::Equal,
             (Const(a), Const(b)) => a.cmp(b),
@@ -83,6 +83,7 @@ macro_rules! common_ord {
                 }
             }
             (Symbol(name1), Symbol(name2)) => name1.cmp(name2),
+            $($tt)*
         }
     };
 }
@@ -90,13 +91,17 @@ macro_rules! common_ord {
 impl Ord for SimpleExpr {
     fn cmp(&self, other: &Self) -> Ordering {
         use SimpleExpr::*;
-        common_ord!(self, other)
+        common_ord!(self, other,)
     }
 }
 
 impl Ord for BasicAlgebraicExpr {
     fn cmp(&self, other: &Self) -> Ordering {
         use BasicAlgebraicExpr::*;
-        common_ord!(self, other)
+        common_ord!(self, other,
+            (Neg(a), Neg(b)) => a.cmp(b),
+            (a, Neg(b)) => a.cmp(&Product(vec![(-1).into(), (**b).clone()])),
+            (Neg(a), b) => Product(vec![(-1).into(), (**a).clone()]).cmp(b),
+        )
     }
 }
